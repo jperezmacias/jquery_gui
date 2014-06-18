@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<!-- Programmed by Jose M. Perez-Macias
+Date: June 2nd, 2014 -->
+<html>
+	<head>
+		<meta charset='utf-8'>
+
+		<title>jQuery Tabs Demo</title>
+		<link rel="stylesheet" type="text/css" href="main.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+		<script src="json3.js"></script>
+		
+		<script>
+			// Wait until the DOM has loaded before querying the document
+			
+			// Global variable to store the selected color (It could be avoided if I check the selected class). It can be a to-do.
+		
+			var gcolor ='black';
+			// Initialize the status
+
+			$(document).ready(function(){
+			
+			 	// if(sessionStorage){
+			 		getDataStorageSession();
+					update();
+			
+			 	// }
+			});
+		
+
+			$(document).ready(function(){
+		
+				/////////////////////////////////////////
+				// This function is to select the color
+				
+				$('body').on('click', '.button', function() {
+				 // We find out if the the color button has been already selected    
+				 var SelectedColorButton =document.getElementsByClassName("SelectedColorButton");
+				 //console.log(SelectedColorButton);
+				 if(SelectedColorButton.length != 0){
+					 $(SelectedColorButton).removeClass("SelectedColorButton");		
+				 }
+				 
+			     $(this).addClass("SelectedColorButton");
+					  // alert($(this).css("background-color"));
+					 // getID($(this).children(".result").attr("id"));
+					 gcolor = $(this).css("background-color");
+					 var SelectedElement =document.getElementsByClassName("selected");
+					 //console.log(SelectedElement);
+					 $(SelectedElement).css({'background-color':gcolor});
+					 //console.log(SelectedElement);
+					 update();
+				});
+				
+				/////////////////////////////////////////
+				// This function is to select a box
+				$('body').on('click', '.box', function() {
+				     // alert($(this).attr("id"));
+					 // getID($(this).children(".result").attr("id"));
+				 $(this).css("background-color");
+				 
+				 // I need to check if there is already one box selected
+				 var Selected =document.getElementsByClassName("selected");
+				 //console.log(Selected);
+				 if(Selected.length){
+					 $(Selected).removeClass("selected")
+				 }
+				     $(this).addClass("selected");
+					 SetColorToId($(this).attr("id"));
+					 update();
+				});  // Ends document read
+
+				/////////////////////////////////////////
+				// This function is to make jqueryUI dialogs //not usring it finally.
+				$( "#dialog" ).dialog({
+				      autoOpen: false,
+				      open: {
+				        effect: "blind",
+				        duration: 1000
+				      },
+				      hide: {
+				        effect: "explode",
+				        duration: 1000
+				      }
+				    });
+						
+				$('ul.tabs').each(function(){
+					// For each set of tabs, we want to keep track of
+					// which tab is active and it's associated content
+					var $active, $content, $links = $(this).find('a');
+					// If the location.hash matches one of the links, use that as the active tab.
+
+					// If no match is found, use the first link as the initial active tab.
+					$active = $($links.filter('[href="'+location.hash+'"]')[0] || $links[0]);
+					$active.addClass('active');
+					$content = $($active[0].hash);
+
+					// Hide the remaining content
+					$links.not($active).each(function () {
+						$(this.hash).hide();
+					});
+
+					// Bind the click event handler
+					$(this).on('click', 'a', function(e){
+						// Make the old tab inactive.
+						$active.removeClass('active');
+						$content.hide();
+						// Update the variables with the new link and content
+						$active = $(this);
+
+						$content = $(this.hash);
+						// Make the tab active.
+						$active.addClass('active');
+						$content.show();
+	
+						// Prevent the anchor's default click action
+
+						e.preventDefault();
+					});
+				});
+			});
+			
+			
+			$('.add_more').click(function(){
+         	   var description = 	$('#description').val();
+         	  	$(".append_data").append('<div class="description_text">'+description+' <a href="javascript:void(0);">X</a></div><br><br>');
+			
+			}); 
+		 
+		 function addDiv(){
+			 var allDivs = document.getElementsByTagName("div");
+			 var n = update();
+			 if(n > 5) // Corresponding n to boxes
+			 	{
+					// To many boxes
+					window.alert("You reached the maximun number of boxes");
+					
+				
+			 	}
+			 else {
+				 var divselection=$(this);
+			 
+				 //var kk = document.getElementbyId("tab1");
+				 //console.log(kk);
+				 randomNumber = Math.floor((Math.random() * 100) + 1);
+
+				 $("div#container").append(( "<div class=box id="+randomNumber + ">" ));
+				 $(document.getElementById(randomNumber)).css({'background-color':gcolor})
+				 update();
+			 
+				 //$(this.append( $( "<div class=box>" ) ));
+			 
+			 	}
+			 
+			 }
+			 
+		 
+			 // This function removes a box
+			 function removeDiv(){
+				 var divselection=$(this);                              				 var boxes = document.getElementsByClassName('box');
+				 //console.log(boxes);
+				 if(boxes.length == 0) {
+					 
+					 $("dialog").dialog( "open");
+					 window.alert("There are no boxes. Add one!");
+					 
+				 }
+				 else {
+				 	
+					 boxes[boxes.length - 1].remove();
+					 //$("div.box").remove();
+			 
+					 //$(this.append( $( "<div class=box>" ) ));
+			 
+				 }
+				 update();
+				 
+				 
+			 }
+				 
+			 // This function updates the counting of the boxes and the colors
+			 function update(){
+				 var divWithId = document.getElementsByClassName('box');
+				 var n = 0;
+				 
+				 // var SelectedColor = document.getElementsByClassName('box');
+				 //SelectedColorButton
+
+				 // We need this statement in case there are no boxes.
+				 if(divWithId == null){
+					 divWithId = 0;
+					 // console.log(divWithId);
+				 }
+				 else {
+			 		 n = divWithId.length;
+				 }
+				 
+			 	// The message is added in the content of the <tag> "span"
+			     $('span.BoxCounter').text( "There are " + n + " Boxes." +
+			       "");
+  			     $('span.SelectedColor').text( "The color " + GetColorName(gcolor) + " is selected." +
+  			       ""); 
+  				 setDataStorageSession();
+				   
+				   return n;
+				   
+			 }
+			 
+			 // 
+			 function SetColorToId(id){
+				 //console.log(id);
+				 // var color = $(#id).css()
+				 var elemento = document.getElementById(id);
+				 //console.log(elemento);
+				 $(elemento).css({'background-color':gcolor});				
+				
+			 }
+			 
+			 // Parser to get the color name instead the RGB value
+			 function GetColorName(RGB) {
+				 var colorname = '';
+				 if(RGB == 'rgb(0, 128, 0)' ) {colorname ='green';}
+				 else if(RGB == 'rgb(0, 0, 0)' ){colorname = 'black';} 
+				 else if(RGB == 'rgb(255, 255, 0)' ){colorname = 'yellow';}
+				 else {
+					 colorname = RGB;
+				 } 
+				 //console.log(colorname);
+				 
+				 return colorname;
+			 }
+			 
+			 
+			 
+ 			// A function to create an structured array for the boxes
+ 			// var Item = makeStruct("id speaker country");
+ // 			var row = new Item(1, 'john', 'au');
+ // 			alert(row.speaker); // displays: john
+ // 			Source: http://stackoverflow.com/questions/502366/structs-in-javascript
+			 function makeStruct(names) {
+			  
+				  var names = names.split(' ');
+				  var count = names.length;
+				  function constructor() {
+				    for (var i = 0; i < count; i++) {
+				      this[names[i]] = arguments[i];
+				    }
+				  } //Constructor end
+				  return constructor;
+			}
+
+			
+			// Stores the data needed into the session.
+			// Storing box_id and box_color value
+			function setDataStorageSession() {
+				
+				//console.log("SetDataStorageSession");
+			 	var Boxes = document.getElementsByClassName('box');
+					
+				// Make a structure to save the boxes
+				var Item = makeStruct("id color");
+				var BoxArray = new Array(); // Create an array for all the boxes, and then do a JSON file to store.
+				
+				// Populate the structure to save the selected color and selected box.
+				for(var i = 0; i < Boxes.length; i++){
+ 					var row = new Item($(Boxes[i]).attr("id"),$(Boxes[i]).css("background-color"));
+					BoxArray.push(row);
+				}
+
+				// I parse the variable into a JSON File.
+				var BoxArrayJson = JSON.stringify(BoxArray);
+			
+				// Here I construct the second JSON for the selected items.
+				
+				var SelectedBox =$(document.getElementsByClassName("selected")).attr("id");
+			 	var SelectedColorButton =$(document.getElementsByClassName("SelectedColorButton")).css("background-color");
+							
+				//console.log("ReadingSelectedBox");
+				//console.log(SelectedBox);
+				
+				// Create the structure
+				var PreviousSelections = makeStruct("BoxIdSelected ColorSelected");
+				//var PreviousSelectionsArray = Array();
+				// Populate the structure
+				var row1 = new PreviousSelections(SelectedBox,SelectedColorButton);
+				//PreviousSelectionsArray.push(row1); 
+				// Save the JSON
+				var PreviousSelectionsJson = JSON.stringify(row1);
+				
+				sessionStorage.clear();
+								
+				sessionStorage.setItem("BoxArrayJson",BoxArrayJson);
+				sessionStorage.setItem("PreviousSelectionsJson",PreviousSelectionsJson);
+				
+			}
+		 	
+			function getDataStorageSession(){
+				
+				if(sessionStorage.length){
+					//console.log("We are in getDataStorageSession");
+			
+			
+					// get the list of boxes
+				 	var BoxArray = JSON.parse(sessionStorage.getItem("BoxArrayJson"));
+				 	var PreviousSelections = JSON.parse(sessionStorage.getItem("PreviousSelectionsJson"));
+					
+					// console.log(PreviousSelections);
+					// console.log("dealing");
+					// console.log(PreviousSelections.BoxIdSelected);
+					// console.log(PreviousSelections.ColorSelected);
+			
+					if(PreviousSelections.ColorSelected){
+						//console.log("I am selecting the color from selected data");
+						// console.log(PreviousSelections.ColorSelected);
+						// remove the automatic
+					 	var temp =document.getElementsByClassName("SelectedColorButton");
+						$(temp).removeClass("SelectedColorButton");	
+						// add the stored
+					 	var color = GetColorName(PreviousSelections.ColorSelected);
+						// console.log(color);
+						var SelectedElement =document.getElementsByClassName(color);
+				     	$(SelectedElement).addClass("SelectedColorButton");
+						gcolor = color;
+								
+				
+					} // Else we leave it as it is
+			
+					for(var i = 0; i < BoxArray.length; i++){
+				
+						// console.log("I am inside box array constructor");
+					 $("div#container").append(( "<div class=box id="+BoxArray[i].id + ">" ));
+					 $(document.getElementById(BoxArray[i].id)).css({'background-color':BoxArray[i].color});
+			 
+				
+					}
+			
+					//console.log(BoxArray);
+			
+
+					if(PreviousSelections.BoxIdSelected != 0){
+						// console.log("I am selecting the selected Box from the stored data");
+						//console.log(PreviousSelections.BoxIdSelected);
+						// add the stored
+						var SelectedElement =document.getElementById(PreviousSelections.BoxIdSelected);
+				     	$(SelectedElement).addClass("selected");
+						
+					} // Else we leave it as it is
+					
+			} // End if sessionstorage
+				
+			}
+			 
+		 
+	 </script>
+	</head>
+
+
+	<body>
+<!-- <div id="dialog" title="Basic dialog">
+  <p>There is nothing to remove<br>not yet anyways.</br></p>
+</div> -->
+		<ul class='tabs'>
+			<li><a href='#tab1'>HOME</a></li>
+			<li><a href='#tab2'>PAGE 1</a></li>
+			<li><a href='#tab3'>PAGE 2</a></li>
+		</ul>
+
+		<div id='tab1'>
+			<div class="center">
+			<button onclick="addDiv()">Add a square</button>
+			<button onclick="removeDiv()">Remove a square</button>
+			</div> <!-- center -->
+			
+			<p>Here you can add and remove boxes as you please. Press "Add" if you want to add a square. Press "remove" if you want to remove a square</p>
+			<br><span class="BoxCounter"></span></br>
+			<div id="container">
+				<!-- <ul id="ulcontainer">
+				</ul> -->
+			</div>
+	
+		</div>
+		<div id='tab2'>
+  		  <div class="button green">Green</div>
+  		  <div class="button yellow">Yellow</div>	
+  		  <div class="button black SelectedColorButton">Black</div>
+		  
+		  <br></br>
+		  <br></br>
+		  <br></br>
+			<p>If you selected a box, its color will change</p>
+			<p>If no box is selected, the new created box will be the selected color.          
+            <p>
+          <!-- <a href="javascript:void(0);" class="add_more">Add More</a> -->
+	      </p>
+
+	<!-- <table border="0" width="500" cellspacing="0">
+	   <tbody class="append_data"></tbody>
+		<tr>
+		  <td> 
+		      <textarea name="description" id="description"></textarea>
+		  </td> 
+		</tr> --> 
+	</table>   
+		</div>
+
+		<div id='tab3'>
+			<p>This section displays the status of the application</p>
+			<span class="BoxCounter"></span><br></br>
+			<span class="SelectedColor"></span>
+		</div>
+	</body>
+</html>
